@@ -25,19 +25,23 @@ function createContext()
   return context;
 }
 
+function drawLoadedImage(img)
+{
+  console.log(img.width);
+  createContext().drawImage(img, 0, 0);
+}
 
-/*http://stackoverflow.com/questions/10906734/how-to-upload-image-into-html5-canvas*/
+//http://stackoverflow.com/questions/6775767/how-can-i-draw-an-image-from-the-html5-file-api-on-canvas
 function loadImage(e)
 {
-  var file = new FileReader();
-  file.onload = function(event){
-    var img = new Image();
-    img.onload = function(){
-      createContext().drawImage(img, 0, 0);
-    }
-    img.src = event.target.result;
+  var img = new Image;
+  img.src = URL.createObjectURL(e.target.files[0]);
+
+  img.onload = drawLoadedImage(img);
+  img.onload = function() {
+    //console.log(img.height);
+    createContext().drawImage(img, 0, 0);
   }
-  file.readAsDataURL(e.target.files[0]);
 }
 
 function controlsSubmit(e)
