@@ -6,6 +6,7 @@ var canvasHeight = 600;
 
 var menuFileClicked = false;
 var menuEditClicked = false;
+var imageToBeEdited = null;
 
 /*function uploadImage()
 {
@@ -37,10 +38,23 @@ function loadImage(e)
   var img = new Image;
   img.src = URL.createObjectURL(e.target.files[0]);
 
-  img.onload = drawLoadedImage(img);
+  //img.onload = drawLoadedImage(img);
+  //  Cannot seem to offload this to an external function
   img.onload = function() {
-    //console.log(img.height);
+    if(canvasWidth != img.width)
+    {
+      canvasWidth = img.width;
+      var canvas = document.getElementById("main.canvas").width = canvasWidth;
+    }
+
+    if(canvasHeight != img.height)
+    {
+      canvasHeight = img.height;
+      var canvas = document.getElementById("main.canvas").height = canvasHeight;
+    }
+
     createContext().drawImage(img, 0, 0);
+    imageToBeEdited = img;
   }
 }
 
@@ -60,11 +74,6 @@ function menuFile()
   if(menuFileClicked && option != "File")
   {
     console.log("selected: " + option);
-
-    /*if(option == "Upload Image")
-    {
-      uploadImage();
-    }*/
 
     menuFileClicked = false;
     return;
