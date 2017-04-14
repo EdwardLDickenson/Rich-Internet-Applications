@@ -1,0 +1,51 @@
+<!--
+  Edward Lloyd Dickenson
+  eld@uwm.edu
+  Computer Science: 482
+  Rich Internet Applications
+  Final Project
+-->
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Final Project</title>
+    <script src="project.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <link href="project.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="main">
+      <h1>Image Editor</h1>
+      <div id="main.menu">
+        <select id="main.menu.file" >
+          <option id="main.menu.file.options">File</option>
+          <option id="main.menu.file.upload">Upload Image</option>
+          <option id="main.menu.file.download">Download Image</option>
+          <option id="main.menu.file.save">Save Image</option>
+        </select>
+        <select id="main.menu.edit">
+          <option id="main.menu.edit.options">Edit</option>
+          <option id="main.menu.edit.draw">Draw Tool</option>
+          <option id="main.menu.edit.polygon">Draw Polygon</option>
+          <option id="main.menu.edit.resize">Resize Image</option>
+        </select>
+      </div>
+      <h4 id="main.name">Image Name</h4>
+      <canvas id="main.canvas" height=600 width=600></canvas>
+      <div id="main.controls">
+        Canvas Size:
+        <form id="main.controls.size">
+          Width:<input id="main.controls.size.Width" type="text" size="1" placeholder="600">
+          Height:<input id="main.controls.size.Height" type="text" size="1" placeholder="600"><br>
+          Output type:
+          <select id="main.controls.format">
+            <option id="main.controls.format.bmp">BMP</option>
+            <option id="main.controls.format.jpg">JPG</option>
+            <option id="main.controls.format.png">PNG</option>
+          </select><br>
+          <input id="main.controls.submit" type="submit" value="Update">
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
