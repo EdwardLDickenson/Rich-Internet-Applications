@@ -7,6 +7,7 @@ var img = new Image();
 
 var menuFileClicked = false;
 var menuEditClicked = false;
+var canvasClicked = false;
 var imageToBeEdited = null;
 
 function createContext()
@@ -16,6 +17,7 @@ function createContext()
 
   return context;
 }
+
 function fillScreen(str)
 {
   var context = createContext();
@@ -23,6 +25,37 @@ function fillScreen(str)
   context.rect(0, 0, canvasWidth, canvasHeight);
   context.fillStyle = str;
   context.fill();
+}
+
+function upLocation(evt)
+{
+  var canvas = document.getElementById("main.canvas");
+
+  var x = evt.pageX - canvas.offsetLeft;
+  var y = evt.pageY - canvas.offsetTop;
+
+  console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
+  //canvasClicked = !canvasClicked;
+}
+
+function downLocation(evt)
+{
+  var canvas = document.getElementById("main.canvas");
+
+  var x = evt.pageX - canvas.offsetLeft;
+  var y = evt.pageY - canvas.offsetTop;
+
+  console.log("main.canvas mousedown at: (" + String(x) + "," + String(y) + ")");
+  var context = canvas.getContext("2d");
+  var pos = context.createImageData(1, 1);
+  var pixel = pos.data;
+  pixel[0] = 0;
+  pixel[1] = 255;
+  pixel[2] = 255;
+  pixel[3] = 0;
+  context.putImageData(pos, x, y);
+
+  //canvasClicked = !canvasClicked;
 }
 
 function loadImage(e)
@@ -57,7 +90,7 @@ function controlsSubmit(e)
   var updatedWidth = $("#main\\.controls\\.size\\.width").val();
   var updatedHeight = $("#main\\.controls\\.size\\.height").val();
 
-  //  The following two conditions can probably be thrown out if the values are added to the HTML file instead of checking on the
+  //  The following two conditions can probably be thrown out if the values are added to the HTML file instead of checking on them
   if(updatedWidth <= 0 || updatedWidth == undefined || updatedWidth == null)
   {
     updatedWidth = 600;
@@ -69,24 +102,14 @@ function controlsSubmit(e)
   }
 
   var canvas = document.getElementById("main.canvas")
-  canvas.width = updatedWidth;
-  canvas.height = updatedHeight;
-
-  canvasWidth = updatedWidth;
-  canvasHeight = updatedHeight;
 
   fillScreen("#FFFFFF");
   canvas.width = updatedWidth;
   canvas.height = updatedHeight;
-  img.width = updatedWidth;
-  img.height = updatedHeight;
-
   canvasWidth = updatedWidth;
   canvasHeight = updatedHeight;
 
-  //fillScreen("#FFFFFF");
-  var context = canvas.getContext("2d");
-  context.drawImage(img, 0, 0);
+  canvas.getContext("2d").drawImage(img, 0, 0, canvasWidth, canvasHeight);
 
   menuClicked = true;
 }
@@ -135,6 +158,8 @@ function init()
   $("#main\\.controls").submit(controlsSubmit);
   $("#main\\.menu\\.file").click(menuFile);
   $("#main\\.menu\\.edit").click(menuEdit);
+  $("#main\\.canvas").mousedown(upLocation);
+  $("#main\\.canvas").mouseup(downLocation);
   $("#main\\.controls\\.image").change(loadImage);
 
   fillScreen("#FFFFFF");
