@@ -7,8 +7,13 @@ var img = new Image();
 
 var menuFileClicked = false;
 var menuEditClicked = false;
-var canvasClicked = false;
 var imageToBeEdited = null;
+
+var menuItem = "";
+var selectedColor = {"red": 255, "green": 255, "blue": 255};
+var downPos = {"x": -1, "y": -1};
+var upPos = {"x": -1, "y": -1};
+var hoverPos = {"x": -1, "y": -1};
 
 function createContext()
 {
@@ -27,17 +32,6 @@ function fillScreen(str)
   context.fill();
 }
 
-function upLocation(evt)
-{
-  var canvas = document.getElementById("main.canvas");
-
-  var x = evt.pageX - canvas.offsetLeft;
-  var y = evt.pageY - canvas.offsetTop;
-
-  console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
-  //canvasClicked = !canvasClicked;
-}
-
 function downLocation(evt)
 {
   var canvas = document.getElementById("main.canvas");
@@ -46,16 +40,43 @@ function downLocation(evt)
   var y = evt.pageY - canvas.offsetTop;
 
   console.log("main.canvas mousedown at: (" + String(x) + "," + String(y) + ")");
-  var context = canvas.getContext("2d");
+
+  downPos.x = x;
+  downPos.y = y;
+
+  /*var context = canvas.getContext("2d");
   var pos = context.createImageData(1, 1);
   var pixel = pos.data;
   pixel[0] = 0;
   pixel[1] = 255;
   pixel[2] = 255;
   pixel[3] = 0;
-  context.putImageData(pos, x, y);
+  context.putImageData(pos, x, y);*/
 
   //canvasClicked = !canvasClicked;
+}
+
+function upLocation(evt)
+{
+  var canvas = document.getElementById("main.canvas");
+
+  var x = evt.pageX - canvas.offsetLeft;
+  var y = evt.pageY - canvas.offsetTop;
+  upPos.x = x;
+  upPos.y = y;
+
+  console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
+  //canvasClicked = !canvasClicked;
+
+  if(menuItem == "Line Tool")
+  {
+    var context = canvas.getContext("2d");
+
+    context.beginPath();
+    context.moveTo(downPos.x, downPos.y);
+    context.lineTo(x, y);
+    context.stroke();
+  }
 }
 
 function loadImage(e)
@@ -122,6 +143,7 @@ function menuFile()
   if(menuFileClicked && option != "File")
   {
     console.log("selected: " + option);
+    menuItem = option;
 
     menuFileClicked = false;
     return;
@@ -138,6 +160,7 @@ function menuEdit()
   if(menuEditClicked && option != "Edit")
   {
     console.log("selected: " + option);
+    menuItem = option;
 
     menuEditClicked = false;
     return;
@@ -167,3 +190,12 @@ function init()
   //  animations in this applications - only stationary images which are procedurally edited
   timer = setInterval(main(), 50);
 }
+
+
+
+/*
+  TODO:
+  Add custom cursors for different tools?
+  Implement import/export formats
+
+*/

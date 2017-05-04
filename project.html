@@ -25,8 +25,9 @@
         </select>
         <select id="main.menu.edit">
           <option id="main.menu.edit.options">Edit</option>
+          <option id="main.menu.edit.line">Line Tool</option>
           <option id="main.menu.edit.draw">Draw Tool</option>
-          <option id="main.menu.edit.polygon">Draw Polygon</option>
+          <option id="main.menu.edit.polygon">Polygon Tool</option>
           <option id="main.menu.edit.resize">Resize Image</option>
           <option id="main.menu.edit.crop">Crop Image</option>
         </select>
@@ -38,15 +39,24 @@
         <form id="main.controls.size">
           Width:<input id="main.controls.size.width" type="text" size="1" placeholder="600">
           Height:<input id="main.controls.size.height" type="text" size="1" placeholder="600"><br>
-          Output type:
+          Selected Output Type:
           <select id="main.controls.format">
             <option id="main.controls.format.bmp">BMP</option>
             <option id="main.controls.format.jpg">JPG</option>
             <option id="main.controls.format.png">PNG</option>
           </select><br>
-          <input id="main.controls.update" type="submit" value="Update">
+          <input id="main.controls.update" type="submit" value="Update"><br><br>
           <input type="file" id="main.controls.image" value="Upload Image">
         </form>
+
+        <div id="main.color">
+          <form id="main.color.rgb">
+            Red: <input id="main.color.rgb.red" type="text" size="1" placeholder="255"></input>
+            Green: <input id="main.color.rgb.green" type="text" size="1" placeholder="255"></input>
+            Blue: <input id="main.color.rgb.blue" type="text" size="1" placeholder="255"></input><br>
+            <input type="button" value="Change Color"></input>
+          </form>
+        </div>
       </div>
     </div>
   </body>
