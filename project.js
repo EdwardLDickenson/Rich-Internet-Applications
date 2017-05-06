@@ -8,9 +8,10 @@ var img = new Image();
 var menuFileClicked = false;
 var menuEditClicked = false;
 var imageToBeEdited = null;
+var canvasClicked = false;
 
 var menuItem = "";
-var selectedColor = {"red": 255, "green": 0, "blue": 0};
+var selectedColor = {"red": 0, "green": 0, "blue": 0};
 var lineWidth = 1;
 var downPos = {"x": -1, "y": -1};
 var upPos = {"x": -1, "y": -1};
@@ -31,19 +32,6 @@ function fillScreen(str)
   context.rect(0, 0, canvasWidth, canvasHeight);
   context.fillStyle = str;
   context.fill();
-}
-
-function downLocation(evt)
-{
-  var canvas = document.getElementById("main.canvas");
-
-  var x = evt.pageX - canvas.offsetLeft;
-  var y = evt.pageY - canvas.offsetTop;
-
-  console.log("main.canvas mousedown at: (" + String(x) + "," + String(y) + ")");
-
-  downPos.x = x;
-  downPos.y = y;
 }
 
 function formatSelectedColor()
@@ -74,6 +62,23 @@ function formatSelectedColor()
   return colorString;
 }
 
+function downLocation(evt)
+{
+  if(menuItem != "")
+  {
+    var canvas = document.getElementById("main.canvas");
+
+    var x = evt.pageX - canvas.offsetLeft;
+    var y = evt.pageY - canvas.offsetTop;
+
+    console.log("main.canvas mousedown at: (" + String(x) + "," + String(y) + ")");
+
+    downPos.x = x;
+    downPos.y = y;
+    canvasClicked = true;
+  }
+}
+
 //  The current system works for the draw line tool, although it's a bit quirky,
 //  but it is not functional for the polygon tool and probably for the draw
 //  tool.  The best system is probably to pair both the mousedown and mouseup
@@ -89,31 +94,39 @@ function upLocation(evt)
 
   console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
 
-  if(menuItem == "Line Tool")
+  if(canvasClicked)
   {
-    var context = canvas.getContext("2d");
+    if(menuItem == "Line Tool")
+    {
+      var context = canvas.getContext("2d");
 
-    context.beginPath();
-    context.moveTo(downPos.x, downPos.y);
-    context.lineTo(x, y);
-    context.lineWidth = lineWidth;
-    console.log(context.lineWidth);
-    context.strokeStyle = "#" + formatSelectedColor();
-    console.log(context.strokeStyle);
-    context.stroke();
+      context.beginPath();
+      context.moveTo(downPos.x, downPos.y);
+      context.lineTo(x, y);
+      context.lineWidth = lineWidth;
+      console.log(context.lineWidth);
+      context.strokeStyle = "#" + formatSelectedColor();
+      console.log(context.strokeStyle);
+      context.stroke();
+    }
+
+    if(menuItem == "Polygon Tool")
+    {
+      var context = canvas.getContext("2d");
+
+      context.beginPath();
+      context.rect(downPos.x, downPos.y, x - downPos.x, y - downPos.y);
+      context.lineWidth = lineWidth;
+      console.log(context.lineWidth);
+      context.strokeStyle = "#" + formatSelectedColor();
+      console.log(context.strokeStyle);
+      context.stroke();
+
+      console.log();
+    }
+
   }
-
-  if(menuItem == "Polygon Tool")
-  {
-    var context = canvas.getContext("2d");
-
-    context.rect(downPos.x, downPos.y, x, y);
-    context.lineWidth = lineWidth;
-    console.log(context.lineWidth);
-    context.strokeStyle = "#" + formatSelectedColor();
-    console.log(context.strokeStyle);
-    context.stroke();
-  }
+  canvasClicked = false;
 }
 
 function loadImage(e)
@@ -172,6 +185,11 @@ function controlsSubmit(e)
   menuClicked = true;
 }
 
+function download()
+{
+  var url = document.getElementById("main.canvas").toDataURL();
+}
+
 function menuFile()
 {
   console.log("main.menu.file");
@@ -183,6 +201,12 @@ function menuFile()
     menuItem = option;
 
     menuFileClicked = false;
+
+    if(option == "Download Image")
+    {
+      download();
+    }
+
     return;
   }
 
@@ -265,6 +289,11 @@ function init()
 /*
   TODO:
   Add custom cursors for different tools?
+
   Implement import/export formats
+
+  Implement a "context cursor" or something similar which allows users to see
+  where the mousedown position is located. A crosshair or something similar
+  would work well.
 
 */
