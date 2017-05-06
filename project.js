@@ -11,6 +11,7 @@ var imageToBeEdited = null;
 
 var menuItem = "";
 var selectedColor = {"red": 255, "green": 0, "blue": 0};
+var lineWidth = 1;
 var downPos = {"x": -1, "y": -1};
 var upPos = {"x": -1, "y": -1};
 var hoverPos = {"x": -1, "y": -1};
@@ -73,6 +74,10 @@ function formatSelectedColor()
   return colorString;
 }
 
+//  The current system works for the draw line tool, although it's a bit quirky,
+//  but it is not functional for the polygon tool and probably for the draw
+//  tool.  The best system is probably to pair both the mousedown and mouseup
+//  events after the tool has been slected.
 function upLocation(evt)
 {
   var canvas = document.getElementById("main.canvas");
@@ -83,7 +88,6 @@ function upLocation(evt)
   upPos.y = y;
 
   console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
-  //canvasClicked = !canvasClicked;
 
   if(menuItem == "Line Tool")
   {
@@ -92,7 +96,20 @@ function upLocation(evt)
     context.beginPath();
     context.moveTo(downPos.x, downPos.y);
     context.lineTo(x, y);
+    context.lineWidth = lineWidth;
+    console.log(context.lineWidth);
+    context.strokeStyle = "#" + formatSelectedColor();
+    console.log(context.strokeStyle);
+    context.stroke();
+  }
 
+  if(menuItem == "Polygon Tool")
+  {
+    var context = canvas.getContext("2d");
+
+    context.rect(downPos.x, downPos.y, x, y);
+    context.lineWidth = lineWidth;
+    console.log(context.lineWidth);
     context.strokeStyle = "#" + formatSelectedColor();
     console.log(context.strokeStyle);
     context.stroke();
@@ -199,6 +216,7 @@ function colorSubmit(evt)
   var red = parseInt($("#main\\.color\\.rgb\\.red").val());
   var green = parseInt($("#main\\.color\\.rgb\\.green").val());
   var blue = parseInt($("#main\\.color\\.rgb\\.blue").val());
+  var width = parseInt($("#main\\.color\\.rgb\\.width").val());
 
   if(red > -1 && red < 256 && red != null && red != undefined)
   {
@@ -215,8 +233,14 @@ function colorSubmit(evt)
     selectedColor.blue = $("#main\\.color\\.rgb\\.blue").val();
   }
 
-  console.log("#" + String(parseInt(selectedColor.red).toString(16)) + String(parseInt(selectedColor.green).toString(16)) + String(parseInt(selectedColor.blue).toString(16)));
-  $("#main\\.color\\.sample").css("background-color", "rgb(" + String(selectedColor.red) + "," + String(selectedColor.green) + "," + String(selectedColor.blue) + ")");
+  if(width > 0 && width != null && width != null)
+  {
+    lineWidth = width;
+  }
+
+  console.log("Width: " + String(width));
+  console.log("Color: #" + formatSelectedColor());
+  $("#main\\.color\\.sample").css("background-color", "#" + formatSelectedColor());
 }
 
 function init()
