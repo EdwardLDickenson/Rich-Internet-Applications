@@ -1,5 +1,5 @@
 window.onload = function(){init()};
-var timer;
+//var timer;
 
 var canvasWidth = 600;
 var canvasHeight = 600;
@@ -10,7 +10,7 @@ var menuEditClicked = false;
 var imageToBeEdited = null;
 
 var menuItem = "";
-var selectedColor = {"red": 255, "green": 255, "blue": 255};
+var selectedColor = {"red": 255, "green": 0, "blue": 0};
 var downPos = {"x": -1, "y": -1};
 var upPos = {"x": -1, "y": -1};
 var hoverPos = {"x": -1, "y": -1};
@@ -43,17 +43,34 @@ function downLocation(evt)
 
   downPos.x = x;
   downPos.y = y;
+}
 
-  /*var context = canvas.getContext("2d");
-  var pos = context.createImageData(1, 1);
-  var pixel = pos.data;
-  pixel[0] = 0;
-  pixel[1] = 255;
-  pixel[2] = 255;
-  pixel[3] = 0;
-  context.putImageData(pos, x, y);*/
+function formatSelectedColor()
+{
+  //  So unfortunately, JS toString(radix) does not pad zero indexed colors,
+  //  for example the value "0" would be "0" and not "#00", which canvas
+  //  requires. So the following few lines of code are required to check if
+  //  the hex number is formatted correctly.
 
-  //canvasClicked = !canvasClicked;
+  var colorString = String(parseInt(selectedColor.red).toString(16));
+  if(colorString.length % 2 != 0)
+  {
+    colorString += "0";
+  }
+
+  colorString += String(parseInt(selectedColor.green).toString(16));
+  if(colorString.length % 2 != 0)
+  {
+    colorString += "0";
+  }
+
+  colorString += String(parseInt(selectedColor.blue).toString(16));
+  if(colorString.length % 2 != 0)
+  {
+    colorString += "0";
+  }
+
+  return colorString;
 }
 
 function upLocation(evt)
@@ -75,6 +92,9 @@ function upLocation(evt)
     context.beginPath();
     context.moveTo(downPos.x, downPos.y);
     context.lineTo(x, y);
+
+    context.strokeStyle = "#" + formatSelectedColor();
+    console.log(context.strokeStyle);
     context.stroke();
   }
 }
@@ -169,26 +189,51 @@ function menuEdit()
   menuEditClicked = true;
 }
 
-function main()
+function colorSubmit(evt)
 {
+  console.log("main.color.rgb");
+  evt.preventDefault();
 
+  //  Unfortunately, JS is not a strongly typed language. Thus, we have to cast
+  //  keyboard input from strings to integers before we can reset the radix
+  var red = parseInt($("#main\\.color\\.rgb\\.red").val());
+  var green = parseInt($("#main\\.color\\.rgb\\.green").val());
+  var blue = parseInt($("#main\\.color\\.rgb\\.blue").val());
+
+  if(red > -1 && red < 256 && red != null && red != undefined)
+  {
+    selectedColor.red = $("#main\\.color\\.rgb\\.red").val();
+  }
+
+  if(green > -1 && green < 256 && green != null && green != undefined)
+  {
+    selectedColor.green = $("#main\\.color\\.rgb\\.green").val();
+  }
+
+  if(blue > -1 && blue < 256 && blue != null && blue != undefined)
+  {
+    selectedColor.blue = $("#main\\.color\\.rgb\\.blue").val();
+  }
+
+  console.log("#" + String(parseInt(selectedColor.red).toString(16)) + String(parseInt(selectedColor.green).toString(16)) + String(parseInt(selectedColor.blue).toString(16)));
+  $("#main\\.color\\.sample").css("background-color", "rgb(" + String(selectedColor.red) + "," + String(selectedColor.green) + "," + String(selectedColor.blue) + ")");
 }
 
 function init()
 {
   console.log("JavaScript file loaded correctly");
 
-  $("#main\\.controls").submit(controlsSubmit);
+  $("#main\\.controls\\.size").submit(controlsSubmit);
   $("#main\\.menu\\.file").click(menuFile);
   $("#main\\.menu\\.edit").click(menuEdit);
   $("#main\\.canvas").mousedown(upLocation);
   $("#main\\.canvas").mouseup(downLocation);
-  $("#main\\.controls\\.image").change(loadImage);
+  $("#main\\.controls\\.image").change(loadImage)
+  $("#main\\.color\\.rgb").submit(colorSubmit);
 
   fillScreen("#FFFFFF");
   //  In retrospect, this is probably not necessary because there are not
   //  animations in this applications - only stationary images which are procedurally edited
-  timer = setInterval(main(), 50);
 }
 
 

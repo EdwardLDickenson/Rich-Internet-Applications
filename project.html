@@ -45,17 +45,21 @@
             <option id="main.controls.format.jpg">JPG</option>
             <option id="main.controls.format.png">PNG</option>
           </select><br>
+          <!-- Now disatisfied with how format is contained in the size form -->
           <input id="main.controls.update" type="submit" value="Update"><br><br>
           <input type="file" id="main.controls.image" value="Upload Image">
         </form>
 
         <div id="main.color">
           <form id="main.color.rgb">
-            Red: <input id="main.color.rgb.red" type="text" size="1" placeholder="255"></input>
-            Green: <input id="main.color.rgb.green" type="text" size="1" placeholder="255"></input>
-            Blue: <input id="main.color.rgb.blue" type="text" size="1" placeholder="255"></input><br>
-            <input type="button" value="Change Color"></input>
+            Red: <input id="main.color.rgb.red" type="text" size="1"></input>
+            Green: <input id="main.color.rgb.green" type="text" size="1"></input>
+            Blue: <input id="main.color.rgb.blue" type="text" size="1"></input><br>
+            <input type="submit" value="Change Color"></input>
           </form>
+          <div id="main.color.sample">
+            Selected Color
+          </div>
         </div>
       </div>
     </div>
