@@ -181,13 +181,18 @@ function controlsSubmit(e)
   canvasHeight = updatedHeight;
 
   canvas.getContext("2d").drawImage(img, 0, 0, canvasWidth, canvasHeight);
+  fillScreen("#FFFFFF");
 
   menuClicked = true;
 }
 
-function download()
+function download(evt)
 {
+  console.log("main.controls.download");
   var url = document.getElementById("main.canvas").toDataURL();
+
+  document.getElementById("main.controls.download").href = url;
+  document.getElementById("main.controls.download").download = "image.jpg";
 }
 
 function menuFile()
@@ -278,6 +283,7 @@ function init()
   $("#main\\.canvas").mouseup(downLocation);
   $("#main\\.controls\\.image").change(loadImage)
   $("#main\\.color\\.rgb").submit(colorSubmit);
+  $("#main\\.controls\\.download").click(download);
 
   fillScreen("#FFFFFF");
   //  In retrospect, this is probably not necessary because there are not
