@@ -7,7 +7,7 @@ var img = new Image();
 
 var menuEditClicked = false;
 var imageToBeEdited = null;
-var canvasClicked = false;
+var canvasEventFired = false;
 var imageUploaded = false;
 
 var menuItem = "Image";
@@ -67,6 +67,7 @@ function downLocation(evt)
 {
   if(menuItem != "")
   {
+    canvasEventFired = true;
     var canvas = document.getElementById("main.canvas");
 
     var x = evt.pageX - canvas.offsetLeft;
@@ -76,7 +77,6 @@ function downLocation(evt)
 
     downPos.x = x;
     downPos.y = y;
-    canvasClicked = true;
   }
 }
 
@@ -95,7 +95,7 @@ function upLocation(evt)
 
   console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
 
-  if(canvasClicked)
+  if(canvasEventFired)
   {
     if(menuItem == "Line Tool")
     {
@@ -125,9 +125,9 @@ function upLocation(evt)
 
       console.log();
     }
-
   }
-  canvasClicked = false;
+
+  canvasEventFired = false;
 }
 
 function loadImage(e)
@@ -193,12 +193,11 @@ function controlsSubmit(e)
   menuClicked = true;
 }
 
-/*
-  So, apparently the only officially supported image type is PNG.  Some browsers
-  support other formats by default, FireFox, but others, Chrome, do not.
-*/
 function download(evt)
 {
+  //  So, apparently the only officially supported image type is PNG.  Some browsers
+  //  support other formats by default, FireFox, but others, Chrome, do not.
+
   console.log("main.controls.canvas.download");
 
   console.log("Selected format: " + $("#main\\.controls\\.format").val());
@@ -274,14 +273,45 @@ function changeName(evt)
   evt.preventDefault();
 }
 
+function mouseMove(evt)
+{
+  var canvas = document.getElementById("main.canvas");
+  var x = evt.pageX - canvas.offsetLeft;
+  var y = evt.pageY - canvas.offsetTop;
+  hoverPos.x = x;
+  hoverPos.y = y;
+  var context = canvas.getContext("2d");
+
+  if(menuItem == "Draw Tool" && canvasEventFired)
+  {
+    var pos = context.createImageData(lineWidth, lineWidth);
+    var pixel = pos.data;
+
+    for(var i = 0; i < pixel.length; i += 4)
+    {
+      pixel[i]  = selectedColor.red;
+      pixel[i + 1] = selectedColor.green;
+      pixel[i + 2] = selectedColor.blue;
+      //  Probably should include a transparency field
+      pixel[i + 3] = 255;
+      context.putImageData(pos, x, y);
+    }
+
+    //  The event logging slows down the computer and reduces the number of
+    //  pixels that can be drawn.
+    //console.log("Mouse draw at: " + String(x) + ", " + String(y));
+  }
+}
+
 function init()
 {
   console.log("JavaScript file loaded correctly");
 
   $("#main\\.controls\\.canvas").submit(controlsSubmit);
   $("#main\\.menu\\.edit").click(menuEdit);
-  $("#main\\.canvas").mousedown(upLocation);
-  $("#main\\.canvas").mouseup(downLocation);
+  $("#main\\.canvas").mouseup(upLocation);
+  $("#main\\.canvas").mousedown(downLocation);
+  $("#main\\.canvas").mousemove(mouseMove);
   $("#main\\.controls\\.canvas\\.image").change(loadImage)
   $("#main\\.controls\\.color\\.rgb").submit(colorSubmit);
   $("#main\\.controls\\.canvas\\.download").click(download);
