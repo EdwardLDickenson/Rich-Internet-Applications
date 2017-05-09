@@ -158,8 +158,8 @@ function controlsSubmit(e)
   console.log("main.controls.update");
   e.preventDefault();
 
-  var updatedWidth = $("#main\\.controls\\.size\\.width").val();
-  var updatedHeight = $("#main\\.controls\\.size\\.height").val();
+  var updatedWidth = $("#main\\.controls\\.canvas\\.width").val();
+  var updatedHeight = $("#main\\.controls\\.canvas\\.height").val();
 
   //  The following two conditions can probably be thrown out if the values are added to the HTML file instead of checking on them
   if(updatedWidth <= 0 || updatedWidth == undefined || updatedWidth == null)
@@ -186,13 +186,21 @@ function controlsSubmit(e)
   menuClicked = true;
 }
 
+/*
+  So, apparently the only officially supported image type is PNG.  Some browsers
+  support other formats by default, FireFox, but others, Chrome, do not.
+*/
 function download(evt)
 {
-  console.log("main.controls.download");
-  var url = document.getElementById("main.canvas").toDataURL();
+  console.log("main.controls.canvas.download");
 
-  document.getElementById("main.controls.download").href = url;
-  document.getElementById("main.controls.download").download = "image.jpg";
+  console.log("Selected format: " + $("#main\\.controls\\.format").val());
+  var format = $("#main\\.controls\\.canvas\\.format").val();
+
+  var url = document.getElementById("main.canvas").toDataURL("image/" + format.toLowerCase());
+  console.log("image/" + format.toLowerCase());
+  document.getElementById("main.controls.canvas.download").href = url;
+  document.getElementById("main.controls.canvas.download").download = "image." + format.toLowerCase();
 }
 
 function menuFile()
@@ -242,24 +250,24 @@ function colorSubmit(evt)
 
   //  Unfortunately, JS is not a strongly typed language. Thus, we have to cast
   //  keyboard input from strings to integers before we can reset the radix
-  var red = parseInt($("#main\\.color\\.rgb\\.red").val());
-  var green = parseInt($("#main\\.color\\.rgb\\.green").val());
-  var blue = parseInt($("#main\\.color\\.rgb\\.blue").val());
-  var width = parseInt($("#main\\.color\\.rgb\\.width").val());
+  var red = parseInt($("#main\\.controls\\.color\\.rgb\\.red").val());
+  var green = parseInt($("#main\\.controls\\.color\\.rgb\\.green").val());
+  var blue = parseInt($("#main\\.controls\\.color\\.rgb\\.blue").val());
+  var width = parseInt($("#main\\.controls\\.color\\.rgb\\.width").val());
 
   if(red > -1 && red < 256 && red != null && red != undefined)
   {
-    selectedColor.red = $("#main\\.color\\.rgb\\.red").val();
+    selectedColor.red = $("#main\\.controls\\.color\\.rgb\\.red").val();
   }
 
   if(green > -1 && green < 256 && green != null && green != undefined)
   {
-    selectedColor.green = $("#main\\.color\\.rgb\\.green").val();
+    selectedColor.green = $("#main\\.controls\\.color\\.rgb\\.green").val();
   }
 
   if(blue > -1 && blue < 256 && blue != null && blue != undefined)
   {
-    selectedColor.blue = $("#main\\.color\\.rgb\\.blue").val();
+    selectedColor.blue = $("#main\\.controls\\.color\\.rgb\\.blue").val();
   }
 
   if(width > 0 && width != null && width != null)
@@ -269,21 +277,21 @@ function colorSubmit(evt)
 
   console.log("Width: " + String(width));
   console.log("Color: #" + formatSelectedColor());
-  $("#main\\.color\\.sample").css("background-color", "#" + formatSelectedColor());
+  $("#main\\.controls\\.color\\.sample").css("background-color", "#" + formatSelectedColor());
 }
 
 function init()
 {
   console.log("JavaScript file loaded correctly");
 
-  $("#main\\.controls\\.size").submit(controlsSubmit);
+  $("#main\\.controls\\.canvas").submit(controlsSubmit);
   $("#main\\.menu\\.file").click(menuFile);
   $("#main\\.menu\\.edit").click(menuEdit);
   $("#main\\.canvas").mousedown(upLocation);
   $("#main\\.canvas").mouseup(downLocation);
-  $("#main\\.controls\\.image").change(loadImage)
-  $("#main\\.color\\.rgb").submit(colorSubmit);
-  $("#main\\.controls\\.download").click(download);
+  $("#main\\.controls\\.canvas\\.image").change(loadImage)
+  $("#main\\.controls\\.color\\.rgb").submit(colorSubmit);
+  $("#main\\.controls\\.canvas\\.download").click(download);
 
   fillScreen("#FFFFFF");
   //  In retrospect, this is probably not necessary because there are not
