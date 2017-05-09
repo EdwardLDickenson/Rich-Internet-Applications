@@ -287,6 +287,13 @@ function colorSubmit(evt)
   $("#main\\.controls\\.color\\.sample").css("background-color", "#" + formatSelectedColor());
 }
 
+function changeName(evt)
+{
+  console.log("hjghjgj");
+
+  evt.preventDefault();
+}
+
 function init()
 {
   console.log("JavaScript file loaded correctly");
@@ -299,6 +306,7 @@ function init()
   $("#main\\.controls\\.canvas\\.image").change(loadImage)
   $("#main\\.controls\\.color\\.rgb").submit(colorSubmit);
   $("#main\\.controls\\.canvas\\.download").click(download);
+  $("#main\\.name").submit(changeName);
 
   fillScreen("#FFFFFF");
   //  In retrospect, this is probably not necessary because there are not
