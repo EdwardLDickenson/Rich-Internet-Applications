@@ -9,6 +9,7 @@ var menuFileClicked = false;
 var menuEditClicked = false;
 var imageToBeEdited = null;
 var canvasClicked = false;
+var imageUploaded = false;
 
 var menuItem = "";
 var selectedColor = {"red": 0, "green": 0, "blue": 0};
@@ -151,6 +152,8 @@ function loadImage(e)
     createContext().drawImage(img, 0, 0);
     imageToBeEdited = img;
   }
+
+  imageUploaded = true;
 }
 
 function controlsSubmit(e)
@@ -181,7 +184,11 @@ function controlsSubmit(e)
   canvasHeight = updatedHeight;
 
   canvas.getContext("2d").drawImage(img, 0, 0, canvasWidth, canvasHeight);
-  fillScreen("#FFFFFF");
+
+  if(!imageUploaded)
+  {
+    fillScreen("#FFFFFF");
+  }
 
   menuClicked = true;
 }
