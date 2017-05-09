@@ -5,18 +5,18 @@ var canvasWidth = 600;
 var canvasHeight = 600;
 var img = new Image();
 
-var menuFileClicked = false;
 var menuEditClicked = false;
 var imageToBeEdited = null;
 var canvasClicked = false;
 var imageUploaded = false;
 
-var menuItem = "";
+var menuItem = "Image";
 var selectedColor = {"red": 0, "green": 0, "blue": 0};
 var lineWidth = 1;
 var downPos = {"x": -1, "y": -1};
 var upPos = {"x": -1, "y": -1};
 var hoverPos = {"x": -1, "y": -1};
+var name = "";
 
 function createContext()
 {
@@ -207,30 +207,7 @@ function download(evt)
   var url = document.getElementById("main.canvas").toDataURL("image/" + format.toLowerCase());
   console.log("image/" + format.toLowerCase());
   document.getElementById("main.controls.canvas.download").href = url;
-  document.getElementById("main.controls.canvas.download").download = "image." + format.toLowerCase();
-}
-
-function menuFile()
-{
-  console.log("main.menu.file");
-  var option = $("#main\\.menu\\.file").val();
-
-  if(menuFileClicked && option != "File")
-  {
-    console.log("selected: " + option);
-    menuItem = option;
-
-    menuFileClicked = false;
-
-    if(option == "Download Image")
-    {
-      download();
-    }
-
-    return;
-  }
-
-  menuFileClicked = true;
+  document.getElementById("main.controls.canvas.download").download = name + "." + format.toLowerCase();
 }
 
 function menuEdit()
@@ -289,7 +266,10 @@ function colorSubmit(evt)
 
 function changeName(evt)
 {
-  console.log("hjghjgj");
+  name = $("#main\\.name\\.input").val();
+  console.log(name);
+
+  $("#main\\.name\\.header").html(name);
 
   evt.preventDefault();
 }
@@ -299,7 +279,6 @@ function init()
   console.log("JavaScript file loaded correctly");
 
   $("#main\\.controls\\.canvas").submit(controlsSubmit);
-  $("#main\\.menu\\.file").click(menuFile);
   $("#main\\.menu\\.edit").click(menuEdit);
   $("#main\\.canvas").mousedown(upLocation);
   $("#main\\.canvas").mouseup(downLocation);
