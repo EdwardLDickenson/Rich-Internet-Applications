@@ -1,0 +1,31 @@
+application: demo
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+- url: /something\.txt
+  static_files: something.txt
+  upload: something\.txt
+
+- url: /CSS
+  static_dir: CSS
+- url: /JS
+  static_dir: JS
+- url: /Images
+  static_dir: Images
+  
+- url: .*
+  script: main.app
+ 
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: jinja2
+  version: latest
+  
