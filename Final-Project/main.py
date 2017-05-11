@@ -23,6 +23,12 @@ class Home(webapp2.RequestHandler):
     def post(self):
         print(self.request.get("evt"));
         
+        #   Don't be confused, these are keys, not indicies. The
+        #   actual index is + 2 of the key. The first index is the 
+        #   name of the function, which will be used as the value 
+        #   for the function map, and the second one is used for 
+        #   the "argc"
+        
         for i in range(int(self.request.get("argc"))):
             print(self.request.get(str(i)))
         

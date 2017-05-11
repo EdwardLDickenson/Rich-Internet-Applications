@@ -16,7 +16,7 @@ var lineWidth = 1;
 var downPos = {"x": -1, "y": -1};
 var upPos = {"x": -1, "y": -1};
 var hoverPos = {"x": -1, "y": -1};
-var name = "";
+var name = "Image Name";
 
 function createContext()
 {
@@ -77,6 +77,16 @@ function downLocation(evt)
 
     downPos.x = x;
     downPos.y = y;
+    
+    $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "downLocation",
+        "argc": 2,
+        "0": x,
+        "1": y}
+    });
   }
 }
 
@@ -108,6 +118,17 @@ function upLocation(evt)
       context.strokeStyle = "#" + formatSelectedColor();
       console.log(context.strokeStyle);
       context.stroke();
+      
+      $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "downLocation",
+        "argc": 2,
+        "0": x,
+        "1": y,
+        "operation": "Line Tool"}
+    });
     }
 
     if(menuItem == "Polygon Tool")
@@ -120,7 +141,16 @@ function upLocation(evt)
       console.log(context.strokeStyle);
       context.stroke();
 
-      console.log();
+      $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "downLocation",
+        "argc": 2,
+        "0": x,
+        "1": y,
+        "operation": "Polygon Tool"}
+    });
     }
   }
 
@@ -129,7 +159,6 @@ function upLocation(evt)
 
 function loadImage(e)
 {
-  //var img = new Image;
   img.src = URL.createObjectURL(e.target.files[0]);
   var canvas = document.getElementById("main.canvas").width = canvasWidth;
 
@@ -138,22 +167,28 @@ function loadImage(e)
     if(canvasWidth != img.width)
     {
       canvasWidth = img.width;
-      //var canvas = document.getElementById("main.canvas").width = canvasWidth;
       canvas.width = canvasWidth;
     }
 
     if(canvasHeight != img.height)
     {
       canvasHeight = img.height;
-      //var canvas = document.getElementById("main.canvas").height = canvasHeight;
       canvas.height = canvasHeight;
     }
 
     createContext().drawImage(img, 0, 0);
-    //imageToBeEdited = img;
   };
 
   imageUploaded = true;
+  
+  $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "downLocation",
+        "argc": 2,
+        }
+    });
 }
 
 function controlsSubmit(e)
@@ -230,10 +265,29 @@ function menuEdit()
     menuItem = option;
 
     menuEditClicked = false;
+    
+    $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "menuEdit",
+        "argc": 1,
+        "0": option}
+    });
+    
     return;
   }
 
   menuEditClicked = true;
+  
+  $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "menuEdit",
+        "argc": 4,
+        "0": option}
+    });
 }
 
 function colorSubmit(evt)
@@ -278,16 +332,22 @@ function colorSubmit(evt)
         data: 
         {"evt": "colorSubmit",
         "argc": 4,
-        "0": red,
-        "1": green,
-        "2": blue,
-        "3": width}
+        "0": selectedColor.red,
+        "1": selectedColor.green,
+        "2": selectedColor.blue,
+        "3": lineWidth}
     });
 }
 
 function changeName(evt)
 {
-  name = $("#main\\.name\\.input").val();
+    var nameToBeUpdated = $("#main\\.name\\.input").val();
+  
+  if(nameToBeUpdated != "" && nameToBeUpdated != undefined && nameToBeUpdated != null)
+  {
+    name = nameToBeUpdated;
+  }
+  
   console.log(name);
 
   $("#main\\.name\\.header").html(name);
@@ -323,14 +383,48 @@ function mouseMove(evt)
       pixel[i]  = selectedColor.red;
       pixel[i + 1] = selectedColor.green;
       pixel[i + 2] = selectedColor.blue;
-      //  Probably should include a transparency field
+      //  Probably should include a transparency field, but for now it's constantly full opacity
       pixel[i + 3] = 255;
       context.putImageData(pos, x, y);
+      
+      $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "changeName",
+        "argc": 1,
+        "0": x,
+        "1": y,
+        "operation": "Draw Tool"}
+    });
     }
 
     //  The event logging slows down the computer and reduces the number of
     //  pixels that can be drawn.
     //console.log("Mouse draw at: " + String(x) + ", " + String(y));
+  }
+  
+  if(menuItem == "Fan Tool" && canvasEventFired)
+  {
+      context.beginPath();
+      context.moveTo(downPos.x, downPos.y);
+      context.lineTo(x, y);
+      context.lineWidth = lineWidth;
+      console.log(context.lineWidth);
+      context.strokeStyle = "#" + formatSelectedColor();
+      console.log(context.strokeStyle);
+      context.stroke();
+      
+      $.ajax({
+        url: "/",
+        type: "Post",
+        data: 
+        {"evt": "changeName",
+        "argc": 1,
+        "0": x,
+        "1": y,
+        "operation": "Fan Tool"}
+    });
   }
 }
 
@@ -340,12 +434,12 @@ function init()
 
   $("#main\\.controls\\.canvas").submit(controlsSubmit);
   $("#main\\.menu\\.edit").click(menuEdit);
+    $("#main\\.canvas").mousedown(downLocation);
   $("#main\\.canvas").mouseup(upLocation);
-  $("#main\\.canvas").mousedown(downLocation);
   $("#main\\.canvas").mousemove(mouseMove);
   $("#main\\.controls\\.canvas\\.image").change(loadImage);
   $("#main\\.controls\\.color\\.rgb").submit(colorSubmit);
-  $("#main\\.controls\\.canvas\\.download").click(download);
+  $("#main\\.controls\\.canvas\\.download").click(download); // Does not need an AJAX POST
   $("#main\\.name").submit(changeName);
 
   fillScreen("#FFFFFF");
@@ -358,11 +452,5 @@ function init()
 /*
   TODO:
   Add custom cursors for different tools?
-
-  Implement import/export formats
-
-  Implement a "context cursor" or something similar which allows users to see
-  where the mousedown position is located. A crosshair or something similar
-  would work well.
 
 */
