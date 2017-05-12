@@ -1,6 +1,6 @@
 //  I'm not actually sure about the next line, but codenvy has many annoying messages without it
 /*eslint-env jquery, browser*/
-window.onload = function(){init();};
+/*eslint-disable no-shadow-global */
 
 var canvasWidth = 600;
 var canvasHeight = 600;
@@ -17,6 +17,24 @@ var downPos = {"x": -1, "y": -1};
 var upPos = {"x": -1, "y": -1};
 var hoverPos = {"x": -1, "y": -1};
 var name = "Image Name";
+
+var dataToBeSent = [];
+
+window.onload = function(){
+      console.log("JavaScript file loaded correctly");
+
+  $("#main\\.controls\\.canvas").submit(controlsSubmit);
+  $("#main\\.menu\\.edit").click(menuEdit);
+    $("#main\\.canvas").mousedown(downLocation);
+  $("#main\\.canvas").mouseup(upLocation);
+  $("#main\\.canvas").mousemove(mouseMove);
+  $("#main\\.controls\\.canvas\\.image").change(loadImage);
+  $("#main\\.controls\\.color\\.rgb").submit(colorSubmit);
+  $("#main\\.controls\\.canvas\\.download").click(download); // Does not need an AJAX POST
+  $("#main\\.name").submit(changeName);
+
+  fillScreen("#FFFFFF");
+};
 
 function createContext()
 {
@@ -63,100 +81,6 @@ function formatSelectedColor()
   return colorString;
 }
 
-function downLocation(evt)
-{
-  if(menuItem != "")
-  {
-    canvasEventFired = true;
-    var canvas = document.getElementById("main.canvas");
-
-    var x = evt.pageX - canvas.offsetLeft;
-    var y = evt.pageY - canvas.offsetTop;
-
-    console.log("main.canvas mousedown at: (" + String(x) + "," + String(y) + ")");
-
-    downPos.x = x;
-    downPos.y = y;
-    
-    $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "downLocation",
-        "argc": 2,
-        "0": x,
-        "1": y}
-    });
-  }
-}
-
-//  The current system works for the draw line tool, although it's a bit quirky,
-//  but it is not functional for the polygon tool and probably for the draw
-//  tool.  The best system is probably to pair both the mousedown and mouseup
-//  events after the tool has been slected.
-function upLocation(evt)
-{
-  var canvas = document.getElementById("main.canvas");
-
-  var x = evt.pageX - canvas.offsetLeft;
-  var y = evt.pageY - canvas.offsetTop;
-  var context = canvas.getContext("2d");
-  upPos.x = x;
-  upPos.y = y;
-
-  console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
-
-  if(canvasEventFired)
-  {
-    if(menuItem == "Line Tool")
-    {
-      context.beginPath();
-      context.moveTo(downPos.x, downPos.y);
-      context.lineTo(x, y);
-      context.lineWidth = lineWidth;
-      console.log(context.lineWidth);
-      context.strokeStyle = "#" + formatSelectedColor();
-      console.log(context.strokeStyle);
-      context.stroke();
-      
-      $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "downLocation",
-        "argc": 2,
-        "0": x,
-        "1": y,
-        "operation": "Line Tool"}
-    });
-    }
-
-    if(menuItem == "Polygon Tool")
-    {
-      context.beginPath();
-      context.rect(downPos.x, downPos.y, x - downPos.x, y - downPos.y);
-      context.lineWidth = lineWidth;
-      console.log(context.lineWidth);
-      context.strokeStyle = "#" + formatSelectedColor();
-      console.log(context.strokeStyle);
-      context.stroke();
-
-      $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "downLocation",
-        "argc": 2,
-        "0": x,
-        "1": y,
-        "operation": "Polygon Tool"}
-    });
-    }
-  }
-
-  canvasEventFired = false;
-}
-
 function loadImage(e)
 {
   img.src = URL.createObjectURL(e.target.files[0]);
@@ -181,14 +105,21 @@ function loadImage(e)
 
   imageUploaded = true;
   
-  $.ajax({
+  /*$.ajax({
         url: "/",
         type: "Post",
         data: 
-        {"evt": "downLocation",
+        {"evt": "loadImage",
         "argc": 2,
+        "0": "Binary Blob"
         }
-    });
+    });*/
+   
+}
+
+function controlsSubmitCallback()
+{
+    
 }
 
 function controlsSubmit(e)
@@ -225,9 +156,9 @@ function controlsSubmit(e)
     fillScreen("#FFFFFF");
   }
 
-  menuClicked = true;
+  //menuClicked = true;
   
-  $.ajax({
+  /*$.ajax({
         url: "/",
         type: "Post",
         data: 
@@ -235,7 +166,9 @@ function controlsSubmit(e)
         "argc": 2,
         "0": updatedWidth,
         "1": updatedHeight}
-    });
+    });*/
+   
+    $.post("/", JSON.stringify({"evt": "controlsSubmit", "width": updatedWidth, "height": updatedHeight}), controlsSubmitCallback);
 }
 
 function download(evt)
@@ -266,28 +199,30 @@ function menuEdit()
 
     menuEditClicked = false;
     
-    $.ajax({
+    //  Really don't need to AJAX when someone pushes a button. We don't need to "undo" that
+    /*$.ajax({
         url: "/",
         type: "Post",
         data: 
         {"evt": "menuEdit",
         "argc": 1,
         "0": option}
-    });
+    });*/
     
     return;
   }
 
   menuEditClicked = true;
-  
-  $.ajax({
+
+    //  Really don't need to AJAX when someone pushes a button. We don't need to "undo" that  
+  /*$.ajax({
         url: "/",
         type: "Post",
         data: 
         {"evt": "menuEdit",
         "argc": 4,
         "0": option}
-    });
+    });*/
 }
 
 function colorSubmit(evt)
@@ -326,17 +261,12 @@ function colorSubmit(evt)
   console.log("Color: #" + formatSelectedColor());
   $("#main\\.controls\\.color\\.sample").css("background-color", "#" + formatSelectedColor());
   
-  $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "colorSubmit",
-        "argc": 4,
-        "0": selectedColor.red,
-        "1": selectedColor.green,
-        "2": selectedColor.blue,
-        "3": lineWidth}
-    });
+   $.post("/", JSON.stringify({"evt": "colorSubmit", "red": selectedColor.red, "green": selectedColor.green, "blue": selectedColor.blue, "width": lineWidth}), upLocationCallback);
+}
+
+function changeNameCallback()
+{
+    
 }
 
 function changeName(evt)
@@ -349,19 +279,101 @@ function changeName(evt)
   }
   
   console.log(name);
-
-  $("#main\\.name\\.header").html(name);
- 
-    $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "changeName",
-        "argc": 1,
-        "0": name}
-    });
+   
+   $.post("/", JSON.stringify({"evt": "changeName", "name": name}), changeNameCallback);
 
   evt.preventDefault();
+}
+
+
+function downLocation(evt)
+{
+  if(menuItem != "")
+  {
+    canvasEventFired = true;
+    var canvas = document.getElementById("main.canvas");
+
+    var x = evt.pageX - canvas.offsetLeft;
+    var y = evt.pageY - canvas.offsetTop;
+
+    console.log("main.canvas mousedown at: (" + String(x) + "," + String(y) + ")");
+
+    downPos.x = x;
+    downPos.y = y;
+   
+   $.post("/", JSON.stringify({"evt": "downLocation", "x": x, "y": y}), upLocationCallback);
+  }
+}
+
+function upLocationCallback()
+{
+    
+}
+
+//  The current system works for the draw line tool, although it's a bit quirky,
+//  but it is not functional for the polygon tool and probably for the draw
+//  tool.  The best system is probably to pair both the mousedown and mouseup
+//  events after the tool has been slected.
+function upLocation(evt)
+{
+  var canvas = document.getElementById("main.canvas");
+
+  var x = evt.pageX - canvas.offsetLeft;
+  var y = evt.pageY - canvas.offsetTop;
+  var context = canvas.getContext("2d");
+  upPos.x = x;
+  upPos.y = y;
+
+  console.log("main.canvas mouseup at: (" + String(x) + "," + String(y) + ")");
+
+  if(canvasEventFired)
+  {
+    if(menuItem == "Line Tool")
+    {
+      context.beginPath();
+      context.moveTo(downPos.x, downPos.y);
+      context.lineTo(x, y);
+      context.lineWidth = lineWidth;
+      console.log(context.lineWidth);
+      context.strokeStyle = "#" + formatSelectedColor();
+      console.log(context.strokeStyle);
+      context.stroke();
+    
+        $.post("/", JSON.stringify({"evt": "upLocation", "operation": "Line Tool", "x": x, "y": y}), upLocationCallback);
+    }
+
+    if(menuItem == "Polygon Tool")
+    {
+      context.beginPath();
+      context.rect(downPos.x, downPos.y, x - downPos.x, y - downPos.y);
+      context.lineWidth = lineWidth;
+      console.log(context.lineWidth);
+      context.strokeStyle = "#" + formatSelectedColor();
+      console.log(context.strokeStyle);
+      context.stroke();
+
+       $.post("/", JSON.stringify({"evt": "upLocation", "operation": "Polygon Tool", "x": x, "y": y}), upLocationCallback);
+    }
+    
+    if(menuItem == "Draw Tool")
+    {
+        $.post("/", JSON.stringify(dataToBeSent), upLocationCallback);
+        dataToBeSent = [];
+    }
+    
+    if(menuItem == "Fan Tool")
+    {
+        $.post("/", JSON.stringify(dataToBeSent), upLocationCallback);
+        dataToBeSent = [];
+    }
+  }
+
+  canvasEventFired = false;
+}
+
+function mouseMoveCallback()
+{
+    
 }
 
 function mouseMove(evt)
@@ -387,21 +399,17 @@ function mouseMove(evt)
       pixel[i + 3] = 255;
       context.putImageData(pos, x, y);
       
-      $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "changeName",
-        "argc": 1,
-        "0": x,
-        "1": y,
-        "operation": "Draw Tool"}
-    });
+      //    Because this generates hundreds of data points to be sent individually to the server, 
+      //    I think that the most efficient way of managing this is to send the data to the server 
+      //    once the mouse button has been released so that there is only one network send event
+        
+        dataToBeSent.push({"evt": "mouseMove", "operation": "Draw Tool", "x": x, "y": y});
     }
 
     //  The event logging slows down the computer and reduces the number of
     //  pixels that can be drawn.
     //console.log("Mouse draw at: " + String(x) + ", " + String(y));
+
   }
   
   if(menuItem == "Fan Tool" && canvasEventFired)
@@ -415,36 +423,8 @@ function mouseMove(evt)
       console.log(context.strokeStyle);
       context.stroke();
       
-      $.ajax({
-        url: "/",
-        type: "Post",
-        data: 
-        {"evt": "changeName",
-        "argc": 1,
-        "0": x,
-        "1": y,
-        "operation": "Fan Tool"}
-    });
+      dataToBeSent.push({"evt": "moveMouse", "operation": "Fan Tool", "x": x, "y": y});
   }
-}
-
-function init()
-{
-  console.log("JavaScript file loaded correctly");
-
-  $("#main\\.controls\\.canvas").submit(controlsSubmit);
-  $("#main\\.menu\\.edit").click(menuEdit);
-    $("#main\\.canvas").mousedown(downLocation);
-  $("#main\\.canvas").mouseup(upLocation);
-  $("#main\\.canvas").mousemove(mouseMove);
-  $("#main\\.controls\\.canvas\\.image").change(loadImage);
-  $("#main\\.controls\\.color\\.rgb").submit(colorSubmit);
-  $("#main\\.controls\\.canvas\\.download").click(download); // Does not need an AJAX POST
-  $("#main\\.name").submit(changeName);
-
-  fillScreen("#FFFFFF");
-  //  In retrospect, this is probably not necessary because there are not
-  //  animations in this applications - only stationary images which are procedurally edited
 }
 
 

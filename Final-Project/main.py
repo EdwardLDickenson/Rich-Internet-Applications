@@ -1,6 +1,7 @@
 import webapp2
 import os
 import jinja2
+import json
 
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
@@ -21,16 +22,21 @@ class Home(webapp2.RequestHandler):
         self.response.write(page.render(values));
     
     def post(self):
-        print(self.request.get("evt"));
-        
+        pass;
         #   Don't be confused, these are keys, not indicies. The
         #   actual index is + 2 of the key. The first index is the 
         #   name of the function, which will be used as the value 
         #   for the function map, and the second one is used for 
         #   the "argc"
         
-        for i in range(int(self.request.get("argc"))):
-            print(self.request.get(str(i)))
+        #print(self.request.get("evt"));
+        
+        #for i in range(int(self.request.get("argc"))):
+        #    print(self.request.get(str(i)))
+        
+        data = self.request.body
+        vals = json.loads(data)
+        print(vals)
         
 app = webapp2.WSGIApplication([
     ('/', Home)
